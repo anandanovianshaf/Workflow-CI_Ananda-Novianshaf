@@ -1,0 +1,44 @@
+name: MLflow CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+
+      - name: Install Dependencies
+        run: |
+          pip install mlflow==2.19.0 pandas scikit-learn
+
+      - name: Train Model
+        working-directory: ./MLProject
+        run: python modelling.py
+
+      - name: Upload Artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model-artifacts
+          path: ./MLProject/mlruns/
+
+      - name: Build Docker Image via MLflow
+        working-directory: ./MLProject
+        run: |
+          RUN_ID=$(cat run_id.txt)
+          mlflow models build-docker -m "runs:/$RUN_ID/model" -n ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest
+
+      - name: Push Image to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest
