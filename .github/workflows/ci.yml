@@ -32,13 +32,19 @@ jobs:
           name: trained-model-artifacts
           path: ./MLProject/mlruns/
 
-      - name: Build Docker Image via MLflow
+      - name: Prepare Model Artifact for Docker
         working-directory: ./MLProject
         run: |
+          # Ambil path model dari file text, lalu copy ke folder model_artifact biar gampang dibuild
           MODEL_PATH=$(cat model_path.txt)
-          mlflow models build-docker -m "$MODEL_PATH" -n ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest
+          cp -r "$MODEL_PATH" ./model_artifact
 
-      - name: Push Image to Docker Hub
+      - name: Build and Push Docker Image
+        working-directory: ./MLProject
         run: |
+          # Login ke Docker Hub
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          # Build image pakai Dockerfile buatan kita
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest .
+          # Push ke Docker Hub
           docker push ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest
