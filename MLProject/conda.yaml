@@ -2,7 +2,7 @@ name: network-flow-env
 channels:
   - defaults
 dependencies:
-  - python=3.12.7
+  - python=3.10.12
   - pip
   - pip:
       - mlflow==2.19.0
