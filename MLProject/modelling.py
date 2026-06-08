@@ -1,6 +1,7 @@
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+import os
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
@@ -18,11 +19,16 @@ with mlflow.start_run() as run:
     rf = RandomForestRegressor(n_estimators=50, max_depth=10, random_state=42)
     rf.fit(X_train, y_train)
     
-    # Log model ke folder default 'mlruns'
+    # Log model ke folder mlruns
     mlflow.sklearn.log_model(rf, "model")
     
-    # Simpan Run ID ke sebuah file teks biar bisa dibaca sama GitHub Actions
-    with open("run_id.txt", "w") as f:
-        f.write(run.info.run_id)
+    # Trik: Ambil absolute local path dari artifact URI
+    # run.info.artifact_uri bentuknya "file:///home/runner/.../artifacts"
+    artifact_path = run.info.artifact_uri.replace("file://", "")
+    model_path = os.path.join(artifact_path, "model")
+    
+    # Simpan path asli ini ke file teks (bukan cuma Run ID)
+    with open("model_path.txt", "w") as f:
+        f.write(model_path)
         
-    print(f"Model berhasil dilatih dengan Run ID: {run.info.run_id}")
+    print(f"Model berhasil dilatih dan tersimpan di: {model_path}")
