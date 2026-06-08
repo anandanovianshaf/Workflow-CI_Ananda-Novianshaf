@@ -35,8 +35,8 @@ jobs:
       - name: Build Docker Image via MLflow
         working-directory: ./MLProject
         run: |
-          RUN_ID=$(cat run_id.txt)
-          mlflow models build-docker -m "runs:/$RUN_ID/model" -n ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest
+          MODEL_PATH=$(cat model_path.txt)
+          mlflow models build-docker -m "$MODEL_PATH" -n ${{ secrets.DOCKER_USERNAME }}/network-flow-model:latest
 
       - name: Push Image to Docker Hub
         run: |
