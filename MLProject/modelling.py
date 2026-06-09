@@ -5,7 +5,9 @@ import os
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
-mlflow.set_experiment("CI_Pipeline_Network_Flow")
+# SOLUSI: Baris di bawah ini wajib di-comment/dihapus agar tidak tabrakan 
+# dengan eksperimen yang sudah dibuat otomatis oleh perintah 'mlflow run' di GitHub Actions
+# mlflow.set_experiment("CI_Pipeline_Network_Flow")
 
 with mlflow.start_run() as run:
     print("Loading data...")
