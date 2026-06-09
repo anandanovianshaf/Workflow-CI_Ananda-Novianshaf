@@ -24,7 +24,7 @@ jobs:
 
       - name: Train Model
         working-directory: ./MLProject
-        run: mlflow run . --env-manager local
+        run: mlflow run . --env-manager local --experiment-name "CI Pipeline Network Flow"
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v4
